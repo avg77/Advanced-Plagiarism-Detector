@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plagiarism Check Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            color: #0059ff;
+        }
+        h2 {
+            color: #007bff;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #292929;
+            border: 1px solid #555;
+            color: #ccc;
+        }
+        .highlight {
+            background-color: #f1c40f;
+            font-weight: bold;
+            color: #000;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 15px; /* Increased space between matches */
+        }
+        .matches {
+            font-size: 20px; /* Increased bullet size */
+            margin-right: 10px;
+            color: #007bff;
+        }
+        .percentage-similarity {
+            color: #f1c40f; /* Yellow color for percentage similarity */
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        /* Custom styling for plagiarism index */
+        .plagiarism-index {
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .plagiarism-index.green {
+            color: #28a745; /* Green color for scores below 20 */
+        }
+        .plagiarism-index.red {
+            color: #dc3545; /* Red color for scores above 20 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plagiarism Check Result:-</h1>
+
+        <h2>Uploaded Document</h2>
+        <pre>{{ uploaded_text }}</pre>
+
+        <h2>Result</h2>
+        <p>Word count: {{ result.words_count }}</p>
+        {% if "percent" in result %}
+            {% set plagiarism_index = 100 - result["percent"] | float %}
+            <p class="plagiarism-index {% if plagiarism_index < 20 %} green {% elif plagiarism_index > 20 %} red {% endif %}">Plagiarism index: {{ plagiarism_index }}%</p>
+        {% else %}
+            <p>Plagiarism index: N/A</p>
+        {% endif %}
+        <p>Matches:</p>
+        <ul>
+            {% for match in result.matches %}
+            <li>
+                <span class="matches">&#8226;</span>
+                <a href="{{ match.url }}" target="_blank">{{ match.url }}</a> - <span class="percentage-similarity">{{ match.percent }}%</span> similarity
+                <pre>
+                    {% for line in uploaded_text.split('\n') %}
+                        {% if line in match.highlight %}
+                            <span class="highlight">{{ line }}</span>
+                        {% else %}
+                            {{ line }}
+                        {% endif %}
+                    {% endfor %}
+                </pre>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
